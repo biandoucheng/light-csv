@@ -201,7 +201,7 @@ class Export
             $content = "xEFxBBxBF";
 
             while ($rows) {
-                $ctx = join(',',array_shift($this->csv->rows)). PHP_EOL;
+                $ctx = join(',',array_shift($rows)). PHP_EOL;
                 $content .= mb_convert_encoding($ctx,"UTF-8","gbk");
             }
 
