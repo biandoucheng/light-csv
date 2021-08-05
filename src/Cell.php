@@ -8,12 +8,10 @@
 
 namespace LTCSV;
 
-use LTCSV\Style;
-
 /*
  * 单元格
  * */
-class Cell extends Style
+class Cell
 {
     /*
      * @var string 坐标
