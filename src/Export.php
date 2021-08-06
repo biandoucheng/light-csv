@@ -60,8 +60,7 @@ class Export
             $this->mkDir($this->dir);
         }
 
-        $name = $this->mkRandomFileName($this->name);
-        $this->path = $this->dir . '/' . $name;
+        $this->path = $this->dir . '/' . $this->name;
         if(is_file($this->path)) {
             unlink($this->path);
         }
@@ -194,12 +193,10 @@ class Export
         $rows = &$this->csv->rows;
 
         return function () use (&$rows) {
-//            $content = "xEFxBBxBF";
-            $content = "";
+            $content = "\xEF\xBB\xBF";
 
             while ($rows) {
                 $ctx = join(',',array_shift($rows)). PHP_EOL;
-//                $content .= mb_convert_encoding($ctx,"UTF-8","gbk");
                 $content .= $ctx;
             }
 
@@ -216,11 +213,10 @@ class Export
     public function write ()
     {
         $count = 0;
-        $content = "";
+        $content = "\xEF\xBB\xBF";
 
         while ($this->csv->rows) {
             $ctx = join(',',array_shift($this->csv->rows)). PHP_EOL;
-//            $content .= mb_convert_encoding($ctx,"UTF-8","gbk");
             $content .= $ctx;
             $count += 1;
             if($count >= 1000) {
