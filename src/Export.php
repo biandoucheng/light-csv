@@ -110,7 +110,7 @@ class Export
      */
     public function mkRandomFileName(string $name)
     {
-       return StrHealper::getRandMd5Str($name);
+        return StrHealper::getRandMd5Str($name);
     }
 
 
@@ -176,7 +176,7 @@ class Export
         ];
 
         return StreamedResponse::create(
-            function () use (&$writer){$this->stream();},
+            $this->stream(),
             200,
             $headers
         );
@@ -200,7 +200,7 @@ class Export
                 $content .= $ctx;
             }
 
-            return $content;
+            echo $content;
         };
     }
 
