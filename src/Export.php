@@ -62,7 +62,9 @@ class Export
 
         $name = $this->mkRandomFileName($this->name);
         $this->path = $this->dir . '/' . $name;
-        unlink($this->path);
+        if(is_file($this->path)) {
+            unlink($this->path);
+        }
 
         #设置地区信息
         setlocale(LC_ALL,'zh-CN');
@@ -78,13 +80,7 @@ class Export
     public function mkDir(string $dir)
     {
         $dirs = explode('/',str_replace('\\','/',$dir));
-
-        $os = strtolower(PHP_OS);
-        if($os != 'windows') {
-            $fd = "/";
-        }else {
-            $fd = "";
-        }
+        $fd = "";
 
         while ($dirs) {
             $d = array_shift($dirs);
@@ -169,7 +165,7 @@ class Export
     {
         #根据不同的浏览器决定是否对名称编码
         $name = $this->name;
-        $ua = $_SERVER['HTTP_USER_AGENT'];
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
         if(preg_match("/Chrome/i",$ua)) {
             $name = urlencode($name);
         }
@@ -198,11 +194,13 @@ class Export
         $rows = &$this->csv->rows;
 
         return function () use (&$rows) {
-            $content = "xEFxBBxBF";
+//            $content = "xEFxBBxBF";
+            $content = "";
 
             while ($rows) {
                 $ctx = join(',',array_shift($rows)). PHP_EOL;
-                $content .= mb_convert_encoding($ctx,"UTF-8","gbk");
+//                $content .= mb_convert_encoding($ctx,"UTF-8","gbk");
+                $content .= $ctx;
             }
 
             return $content;
@@ -218,11 +216,12 @@ class Export
     public function write ()
     {
         $count = 0;
-        $content = "xEFxBBxBF";
+        $content = "";
 
         while ($this->csv->rows) {
             $ctx = join(',',array_shift($this->csv->rows)). PHP_EOL;
-            $content .= mb_convert_encoding($ctx,"UTF-8","gbk");
+//            $content .= mb_convert_encoding($ctx,"UTF-8","gbk");
+            $content .= $ctx;
             $count += 1;
             if($count >= 1000) {
                 $flag = file_exists($this->path) ? FILE_APPEND : 0;

@@ -39,11 +39,6 @@ class CSV
     public $headerOut = true;
 
     /*
-     * @var array 表头对应的列 eg:['name'=>'A']
-     * */
-    public $columns;
-
-    /*
      * @var string 汇总位置 top | bottom
      * */
     protected $summaryPos = 'top';
@@ -175,8 +170,8 @@ class CSV
         $item = [];
 
         #数组长度不够则填充
-        if(count($row) < count($this->columns)) {
-            $row = array_pad($row,count($this->columns),'');
+        if(count($row) < count($this->header)) {
+            $row = array_pad($row,count($this->header),'');
         }
 
         foreach ($row as $val) {
@@ -217,11 +212,11 @@ class CSV
         $item = [];
 
         #数组长度不够则填充
-        if(count($row) < count($this->columns)) {
-            $row = array_pad($row,count($this->columns),'');
+        if(count($row) < count($this->header)) {
+            $row = array_pad($row,count($this->header),'');
         }
 
-        foreach ($this->columns as $column) {
+        foreach ($this->header as $column=>$zh) {
             if(isset($row[$column])) {
                 if(is_bool($row[$column])) {
                     $row[$column] = $row[$column] ? "true" : "false";
@@ -266,7 +261,7 @@ class CSV
             $val = $row['val'];
             $item = [];
 
-            foreach ($this->columns as $column=>$zh) {
+            foreach ($this->header as $column=>$zh) {
                 $item[] = isset($val[$column]) ? '"'.$val[$column].'"' : '""';
             }
 
