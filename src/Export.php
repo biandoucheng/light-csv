@@ -235,6 +235,39 @@ class Export
         $this->csv->resetRowAndColumn();
     }
 
-    // 写入测试文件
+    /**
+     * 流式写入文件数据
+     * Date: 2025/10/13 10:26
+     *
+     * @param $first
+     * @param  false  $withBom
+     * @author lusun
+     */
+    public function streamFileWrite($first,$withBom = false)
+    {
+        // 将内容写入文件，并清空$this->csv->rows, 重置列数
+        $count = 0;
+        $content = $withBom ? "\xEF\xBB\xBF" : "";
+
+        while ($this->csv->rows) {
+            $ctx = join(',',array_shift($this->csv->rows)). PHP_EOL;
+            $content .= $ctx;
+            $count += 1;
+            if($count >= 1000) {
+                $flag = file_exists($this->path) ? FILE_APPEND : 0;
+                file_put_contents($this->path,$content,$flag);
+                $content = "";
+                $count = 0;
+            }
+        }
+
+        if($content) {
+            $flag = file_exists($this->path) ? FILE_APPEND : 0;
+            file_put_contents($this->path,$content,$flag);
+        }
+
+        $this->csv->rows = [];
+        $this->csv->resetRow();
+    }
 
 }

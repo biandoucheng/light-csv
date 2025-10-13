@@ -284,4 +284,15 @@ class CSV
     {
         $this->rowIndex = $this->columnIndex = 0;
     }
+
+    /**
+     * 仅重置
+     * Date: 2025/10/13 10:27
+     *
+     * @author lusun
+     */
+    public function resetRow()
+    {
+        $this->rowIndex = 0;
+    }
 }
