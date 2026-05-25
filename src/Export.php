@@ -270,4 +270,70 @@ class Export
         $this->csv->resetRow();
     }
 
+    /**
+     * 流式响应下载，分批次清理缓存
+     * Date: 2026/5/25 09:25
+     *
+     * @author lusun
+     */
+    public function downloadByIterator(callable $handleRows = null, array $firstRows = [])
+    {
+        // 设置headers 根据不同的浏览器决定是否对名称编码
+        $name = $this->name;
+        $ua = $_SERVER['HTTP_USER_AGENT'] ?? '';
+
+        if (preg_match("/Chrome/i",$ua)) {
+            $name = urlencode($name);
+        }
+
+        $headers = [
+            "Content-Type" => "application/x-csv;charset=UTF-8",
+            "Content-Disposition" => 'attachment;filename="'.$name.'"',
+            "Cache-Control" => "max-age=0",
+            "X-Accel-Buffering" => "no"
+        ];
+
+        return StreamedResponse::create(
+            $this->streamByIterator($handleRows, $firstRows),
+            200,
+            $headers
+        );
+    }
+
+    public function streamByIterator(callable $handleRows = null, array $firstRows = [])
+    {
+        return function () use ($handleRows, $firstRows) {
+            echo "\xEF\xBB\xBF";
+
+            // 表头、汇总行等优先输出
+            if ($firstRows) {
+                $this->setCellValue($firstRows);
+                $this->flushRows();
+            }
+
+            $iterator = $this->csv->getCache()->iterator();
+
+            foreach ($iterator as $rows) {
+                if ($handleRows) {
+                    $rows = $handleRows($rows);
+                }
+                $this->setCellValue($rows);
+                $this->flushRows();
+                unset($rows);
+            }
+        };
+    }
+
+    protected function flushRows()
+    {
+        while ($this->csv->rows) {
+            echo join(',', array_shift($this->csv->rows)) . PHP_EOL;
+        }
+        $this->csv->rows = [];
+        $this->csv->resetRow();
+        if (ob_get_level() > 0) {
+            @ob_flush();
+        }
+        flush();
+    }
 }
